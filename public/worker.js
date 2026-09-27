@@ -15,6 +15,6 @@ self.onmessage = function (e) {
   const value = e.data.data;
   const result = getFibonacci(Number(value));
   
-  // Результатом має бути число
+  // Повертаємо число[cite: 5]
   self.postMessage(result);
 };
