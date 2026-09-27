@@ -6,10 +6,10 @@ function App() {
   const [result, setResult] = useState('');
   const workerRef = useRef(null);
 
-  // Очищуємо воркер при розмонтуванні компонента
+  // Безпечно очищуємо воркер при розмонтуванні
   useEffect(() => {
     return () => {
-      if (workerRef.current) {
+      if (workerRef.current && typeof workerRef.current.terminate === 'function') {
         workerRef.current.terminate();
       }
     };
@@ -18,23 +18,19 @@ function App() {
   const handleCalculate = () => {
     if (number === '') return;
 
-    // Додаткова вимога: зупиняємо попереднє обчислення, якщо воно ще триває
-    if (workerRef.current) {
+    // Безпечно зупиняємо попередній воркер, якщо він підтримує terminate
+    if (workerRef.current && typeof workerRef.current.terminate === 'function') {
       workerRef.current.terminate();
     }
 
-    // Поки значення обчислюється, виводимо "Calculating..."[cite: 5]
     setResult('Calculating...');
 
-    // Створюємо новий веб-воркер[cite: 5]
     workerRef.current = new Worker('/worker.js');
 
     workerRef.current.onmessage = (e) => {
-      // Результат виводиться у форматі Result: evaluated_fibonacci[cite: 5]
       setResult(`Result: ${e.data}`);
     };
 
-    // Передаємо дані у форматі об'єкта { data: someValue }[cite: 5]
     workerRef.current.postMessage({ data: Number(number) });
   };
 
